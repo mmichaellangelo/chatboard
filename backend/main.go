@@ -34,6 +34,7 @@ func createRoutesAndServe(db *db.DBPool) error {
 	mux.Handle("/", api.NewHomeHandler(db))
 	mux.Handle("/messages/", api.NewMessageHandler(db))
 	mux.Handle("/accounts/", api.NewAccountHandler(db))
+	mux.Handle("/login/", api.NewLoginHandler(db))
 
 	err := http.ListenAndServe(":8080", mux)
 	return err
