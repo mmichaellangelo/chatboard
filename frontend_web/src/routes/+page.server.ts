@@ -1,4 +1,6 @@
 import type { Actions } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
+import type { LayoutServerLoad } from "./$types";
 
 export const actions: Actions = {
     default: async ({request}) => {
@@ -15,3 +17,11 @@ export const actions: Actions = {
         }
     }
 }
+
+export const load: LayoutServerLoad = async ({cookies}) => {
+    const session = cookies.get("session");
+
+    if (!session) {
+        redirect(303, "/login")
+    }
+} 

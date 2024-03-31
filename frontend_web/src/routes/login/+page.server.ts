@@ -1,11 +1,13 @@
 import type { Actions } from "@sveltejs/kit";
-
+import { fail, redirect } from "@sveltejs/kit"
+import pkg from 'jsonwebtoken'
+import type { PageServerLoad } from "../$types";
+const {verify} = pkg
 export const actions: Actions = {
-    default: async ({request}) => {
+    default: async ({request, cookies}) => {
         const formData = await request.formData();
-        console.log(formData)
         try {
-            const response = await fetch("http://api:8080/login/", {
+            let response = await fetch("http://api:8080/login/", {
                 method: "POST",
                 mode: "cors",
                 body: formData,
@@ -13,20 +15,42 @@ export const actions: Actions = {
 
             if (!response.ok) {
                 console.error(`API call failed with status: ${response.status}`)
+                return fail(400)
             }
+            
             try {
-                const data = await response.json()
-                const token = data.token
-                console.log(token)
+                const data = await response.json();
+                console.log(data)
+
+                const token = data.session;
+
+                const ver = verify(token, "secret key", {algorithms: ['HS256']})
+
+                console.log(ver)
+
+                cookies.set("session", token, {
+                    path: '/',
+                    sameSite: 'lax',
+                    httpOnly: true
+                })
             } catch (error) {
-                console.error(`Error parsing JSON: ${error}`)
+                console.log(error)
             }
+            
             
         } catch (error) {
             console.log(error)
+            return fail(400)
         }
 
         
-        
+    }
+}
+
+export const load: PageServerLoad = async ({cookies}) => {
+    const session = cookies.get("session");
+    if (session) {
+        console.log("Found session cookie!")
+        redirect(302, "/")
     }
 }

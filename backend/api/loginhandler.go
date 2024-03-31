@@ -14,6 +14,10 @@ type LoginHandler struct {
 	db *db.DBPool
 }
 
+type AuthToken struct {
+	Token string `json:"session"`
+}
+
 var (
 	LoginRE = regexp.MustCompile(`^\/login\/$`)
 )
@@ -37,19 +41,17 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		responseData := map[string]interface{}{
-			"token": token,
-		}
+		jsonAuthInfo, err := json.Marshal(AuthToken{
+			Token: token,
+		})
 
-		jsonData, err := json.Marshal(responseData)
 		if err != nil {
 			fmt.Println("Error marshalling JSON:", err)
-			w.WriteHeader(500)
-			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonData)
+		w.Write(jsonAuthInfo)
+
 	}
 }
 
@@ -69,10 +71,6 @@ func (h *LoginHandler) HandleLogin(r *http.Request) (string, error) {
 	return token, nil
 }
 
-type AuthToken struct {
-	token string
-}
-
 func (h *LoginHandler) AuthorizeUser(username string, password string) (string, error) {
 	rows, err := h.db.Pool.Query(context.Background(), "SELECT password FROM account WHERE username=$1", username)
 	if err != nil {
@@ -86,7 +84,6 @@ func (h *LoginHandler) AuthorizeUser(username string, password string) (string, 
 		}
 	}
 	if password == passwordFromDB {
-		fmt.Println("Auth Success!")
 		token, err := auth.CreateToken(username)
 		if err != nil {
 			return "", fmt.Errorf("Error creating token: %v", err)

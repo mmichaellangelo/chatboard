@@ -134,7 +134,7 @@ func (h *AccountHandler) CreateAccount(username string, email string, password s
 	}
 	rows, err := h.db.Pool.Query(context.Background(), "INSERT INTO account (username, email, password, date_created) VALUES ($1, $2, $3, NOW())", username, email, password)
 	if err != nil {
-		return fmt.Errorf("Error inserting into database:", err)
+		return fmt.Errorf("Error inserting into database: %v", err)
 	}
 	fmt.Println(rows)
 	return nil
