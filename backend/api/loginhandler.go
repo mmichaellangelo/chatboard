@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 type LoginHandler struct {
@@ -29,7 +30,9 @@ func NewLoginHandler(db *db.DBPool) http.Handler {
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == http.MethodPost && LoginRE.MatchString(r.URL.Path):
-		token, err := h.HandleLogin(r)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		token, err := h.HandleLogin(r, ctx)
 		if err != nil {
 			fmt.Println("Error logging in:", err)
 			w.WriteHeader(500)
@@ -55,7 +58,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *LoginHandler) HandleLogin(r *http.Request) (string, error) {
+func (h *LoginHandler) HandleLogin(r *http.Request, ctx context.Context) (string, error) {
 	r.ParseMultipartForm(0)
 	username := r.FormValue("username")
 	password := r.FormValue("password")

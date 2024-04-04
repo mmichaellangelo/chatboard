@@ -5,6 +5,7 @@ import type { PageServerLoad } from "../$types";
 const {verify} = pkg
 export const actions: Actions = {
     default: async ({request, cookies}) => {
+        console.log("getting form data")
         const formData = await request.formData();
         try {
             let response = await fetch("http://api:8080/login/", {
@@ -12,6 +13,8 @@ export const actions: Actions = {
                 mode: "cors",
                 body: formData,
             });
+
+            console.log(`Response: ${response}`)
 
             if (!response.ok) {
                 console.error(`API call failed with status: ${response.status}`)
@@ -30,7 +33,6 @@ export const actions: Actions = {
 
                 cookies.set("session", token, {
                     path: '/',
-                    sameSite: 'lax',
                     httpOnly: true
                 })
             } catch (error) {
@@ -48,6 +50,7 @@ export const actions: Actions = {
 }
 
 export const load: PageServerLoad = async ({cookies}) => {
+    console.log("LOGIN SERVER LOAD")
     const session = cookies.get("session");
     if (session) {
         console.log("Found session cookie!")

@@ -30,7 +30,6 @@ func main() {
 
 func createRoutesAndServe(db *db.DBPool) error {
 	mux := http.NewServeMux()
-
 	mux.Handle("/", api.NewHomeHandler(db))
 	mux.Handle("/messages/", api.NewMessageHandler(db))
 	mux.Handle("/accounts/", api.NewAccountHandler(db))

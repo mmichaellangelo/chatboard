@@ -1,9 +1,9 @@
 import type { Actions } from "@sveltejs/kit";
 import { redirect } from "@sveltejs/kit";
-import type { LayoutServerLoad } from "./$types";
+import type { PageServerLoad } from "./$types";
 
 export const actions: Actions = {
-    default: async ({request}) => {
+    default: async ({request, fetch}) => {
         let formData = await request.formData()
 
         try {
@@ -18,7 +18,8 @@ export const actions: Actions = {
     }
 }
 
-export const load: LayoutServerLoad = async ({cookies}) => {
+export const load: PageServerLoad = async ({cookies}) => {
+    console.log("ROOT SERVER LOAD")
     const session = cookies.get("session");
 
     if (!session) {
