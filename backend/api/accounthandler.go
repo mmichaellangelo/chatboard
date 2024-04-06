@@ -61,15 +61,17 @@ func (h *AccountHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// CREATE Account
 	case r.Method == http.MethodPost && AccountRE.MatchString(r.URL.Path):
-		var account models.NewAccountPostDetails
-		err := json.NewDecoder(r.Body).Decode(&account)
-		if err != nil {
-			fmt.Println("Error getting new account details:", err)
+		r.ParseMultipartForm(0)
+		username := r.FormValue("username")
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		if username == "" || email == "" || password == "" {
 			w.WriteHeader(400)
 			return
 		}
 
-		err = h.CreateAccount(account.Username, account.Email, account.Password)
+		err := h.CreateAccount(username, email, password)
 		if err != nil {
 			fmt.Println("Error creating new account:", err)
 			w.WriteHeader(500)

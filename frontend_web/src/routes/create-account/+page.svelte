@@ -2,11 +2,11 @@
 <div id="form_container">
     <form method="post">
         <label for="email">Email</label>
-        <input type="email"><br/>
+        <input type="email" name="email"><br/>
         <label for="username">Username</label>
         <input type="text" name="username"> <br/>
         <label for="password">Password</label>
-        <input type="password"><br/>
+        <input type="password" name="password"><br/>
         <button type="submit">Create Account</button>
     </form>
 </div>
